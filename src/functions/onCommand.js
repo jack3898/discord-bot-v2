@@ -1,6 +1,10 @@
-const {PREFIX} = require('./../config.json');
+const {PREFIX} = require('../config.json');
 
-function onMessage(msg) {
+/**
+ *
+ * @param {Discord.Message} msg The message object
+ */
+function onCommand(msg) {
 	// Check the message being sent is either 1) not a bot and 2) starts with the prefix.
 	if (msg.author.bot || !msg.content.startsWith(PREFIX)) return;
 
@@ -15,4 +19,4 @@ function onMessage(msg) {
 	}
 }
 
-module.exports = onMessage;
+module.exports = onCommand;
