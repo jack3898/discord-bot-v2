@@ -1,1 +1,6 @@
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300"><defs><style>.cls-1,.cls-5{font-size:75.09px;font-family:MyriadPro-Regular, Myriad Pro;}.cls-1{letter-spacing:-0.07em;}.cls-2{letter-spacing:0em;}.cls-3{letter-spacing:-0.01em;}.cls-4{letter-spacing:0em;}.cls-6{letter-spacing:-0.03em;}.cls-7{letter-spacing:-0.02em;}.cls-8{letter-spacing:-0.07em;}</style></defs><text class="cls-1" transform="translate(110.51 180.14)">T<tspan class="cls-2" x="31.99" y="0">otal le</tspan><tspan class="cls-3" x="223.24" y="0">v</tspan><tspan class="cls-4" x="258.61" y="0">el:</tspan></text><text id="_TOTAL_LEVEL_" data-name="[TOTAL_LEVEL]" class="cls-5" transform="translate(449.64 180.71)"><tspan class="cls-6">T</tspan><tspan class="cls-7" x="35.29" y="0">O</tspan><tspan class="cls-8" x="85.15" y="0">T</tspan><tspan x="116.84" y="0">AL</tspan></text></svg>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" width="900" height="300">
+    <defs>
+        <style>.cls-1,.cls-5{font-size:75.09px;font-family:MyriadPro-Regular, Myriad Pro;}.cls-1{letter-spacing:-0.07em;}.cls-2{letter-spacing:0em;}.cls-3{letter-spacing:-0.01em;}.cls-4{letter-spacing:0em;}.cls-6{letter-spacing:-0.03em;}.cls-7{letter-spacing:-0.02em;}.cls-8{letter-spacing:-0.07em;}</style>
+    </defs>
+    <text class="cls-1" transform="translate(110.51 180.14)">Total level:</tspan><tspan id="total_level">TOTAL</tspan></text>
+</svg>

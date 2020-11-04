@@ -1,4 +1,8 @@
 const fetch = require('node-fetch');
+const requireAsString = require('../functions/requireAsString');
+const cheerio = require('cheerio');
+const sharp = require('sharp');
+const {MessageAttachment} = require('discord.js');
 
 class rs {
 	static name = 'rs';
@@ -22,7 +26,6 @@ class rs {
 				.filter(stat => stat.length === 3)
 				.reduce((acc, skill, index) => {
 					acc[skill_order[index]] = {
-						xp: Math.abs(skill[2]),
 						level: Math.abs(skill[1])
 					};
 					return acc;
@@ -33,11 +36,51 @@ class rs {
 		}
 	};
 
+	/**
+	 * Take a nice preformatted SVG and inject values into it
+	 * @param {string} SVGFileLocation
+	 * @param {object} values Specify an object. Keys = SVG IDs, values = what to replace that ID with. Keys are found in the "skill_order" variable above
+	 */
+	static injectIntoSVG = (SVGFileLocation, values) => {
+		const SVGSource = requireAsString(SVGFileLocation);
+		const XMLProcessor = cheerio.load(SVGSource);
+		XMLProcessor('#total_level').text(values.total_level.level);
+		return XMLProcessor('body').html();
+	};
+
+	/**
+	 * Convert the SVG string to a buffer!
+	 * @param {string} svgSource <svg>...</svg> element as a string. NOT buffer.
+	 */
+	static SVGToImg = svgSource => {
+		return new Promise(async (resolve, reject) => {
+			const svg = Buffer.from(svgSource);
+			const buffer = await sharp(svg)
+				.png()
+				.toBuffer()
+				.catch(error => reject(error));
+			resolve(buffer);
+		});
+	};
+
 	static execute = async (msg, cmd, args) => {
-		const api = await fetch(`https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${args.join(' ')}`);
-		const data = await api.text();
-		const orderedStats = this.processText(data);
-		msg.reply(JSON.stringify(orderedStats));
+		try {
+			// Get player stats from a non-json API
+			const api = await fetch(`https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${args.join(' ')}`);
+			// Get player stats as text
+			const data = await api.text();
+			// Turn the jibberish API response into a nice object
+			const orderedStats = this.processText(data);
+			// Inject the values into an SVG, return the SVG as string
+			const svgSource = this.injectIntoSVG('../images/rs_stats/test-01.svg', orderedStats);
+			// Turn string-based SVG into a buffer object ready to be sent as a PNG file attachment in discord
+			const imageBuffer = await this.SVGToImg(svgSource);
+			// Send the message
+			msg.reply('Stats: ', new MessageAttachment(imageBuffer));
+		} catch (error) {
+			console.log(error);
+			msg.reply('There was a problem fetching OSRS stats.');
+		}
 	};
 }
 
