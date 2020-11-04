@@ -11,6 +11,7 @@ class rs {
 	 * Process the API data into a valid and readable JS object
 	 * Please note that this function is VERY specific to how the text should be input!
 	 * @param {string} data The textual data separated by commas and new lines
+	 * @returns {Object} {skill: {level: int}}
 	 */
 	static processText = data => {
 		try {
@@ -40,6 +41,7 @@ class rs {
 	 * Take a nice preformatted SVG and inject values into it
 	 * @param {string} SVGFileLocation
 	 * @param {object} values Specify an object. Keys = SVG IDs, values = what to replace that ID with. Keys are found in the "skill_order" variable above
+	 * @returns {string} SVG XML contents
 	 */
 	static injectIntoSVG = (SVGFileLocation, values) => {
 		const SVGSource = requireAsString(SVGFileLocation);
@@ -54,6 +56,7 @@ class rs {
 	/**
 	 * Convert the SVG string to a buffer!
 	 * @param {string} svgSource <svg>...</svg> element as a string. NOT buffer.
+	 * @returns {Buffer} SVG buffer
 	 */
 	static SVGToImg = svgSource => {
 		return new Promise(async (resolve, reject) => {
