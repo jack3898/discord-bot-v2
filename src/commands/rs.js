@@ -44,7 +44,10 @@ class rs {
 	static injectIntoSVG = (SVGFileLocation, values) => {
 		const SVGSource = requireAsString(SVGFileLocation);
 		const XMLProcessor = cheerio.load(SVGSource);
-		XMLProcessor('#total_level').text(values.total_level.level);
+		Object.entries(values).forEach(value => {
+			XMLProcessor(`#${value[0]}`).text(value[1].level);
+		});
+
 		return XMLProcessor('body').html();
 	};
 
@@ -72,7 +75,7 @@ class rs {
 			// Turn the jibberish API response into a nice object
 			const orderedStats = this.processText(data);
 			// Inject the values into an SVG, return the SVG as string
-			const svgSource = this.injectIntoSVG('../images/rs_stats/test-01.svg', orderedStats);
+			const svgSource = this.injectIntoSVG('../images/rs_stats/style_1.svg', orderedStats);
 			// Turn string-based SVG into a buffer object ready to be sent as a PNG file attachment in discord
 			const imageBuffer = await this.SVGToImg(svgSource);
 			// Send the message
