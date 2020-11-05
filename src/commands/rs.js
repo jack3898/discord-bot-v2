@@ -46,33 +46,49 @@ class rs {
 	static injectIntoSVG = (SVGFileLocation, values) => {
 		const SVGSource = requireAsString(SVGFileLocation);
 		const XMLProcessor = cheerio.load(SVGSource);
-		Object.entries(values).forEach(value => {
-			XMLProcessor(`#${value[0]}`).text(value[1].level);
-		});
+		Object.entries(values).forEach(value => XMLProcessor(`#${value[0]}`).text(value[1].level));
 
 		return XMLProcessor('body').html();
 	};
 
 	/**
-	 * Convert the SVG string to a buffer!
+	 * Convert the SVG string to a buffer! Does not support embedded rasterised images. Please use a background image and overlay the SVG.
 	 * @param {string} svgSource <svg>...</svg> element as a string. NOT buffer.
+	 * @param {string} backgroundPath path/to/background/image.png
 	 * @returns {Buffer} SVG buffer
 	 */
-	static SVGToImg = svgSource => {
+	static SVGToImg = (svgSource, backgroundPath) => {
 		return new Promise(async (resolve, reject) => {
 			const svg = Buffer.from(svgSource);
-			const buffer = await sharp(svg)
+
+			// Make the SVG an image
+			const svgOverlay = await sharp(svg)
 				.png()
 				.toBuffer()
-				.catch(error => reject(error));
+				.catch(error => {
+					reject(error);
+					return;
+				});
+
+			// Overlay the SVG over a background PNG
+			const buffer = await sharp(`${__dirname}/${backgroundPath}`)
+				.composite([{input: svgOverlay}])
+				.toBuffer()
+				.catch(error => {
+					reject(error);
+					return;
+				});
+
 			resolve(buffer);
 		});
 	};
 
 	static execute = async (msg, cmd, args) => {
 		try {
+			// As runescape supports playernames with spaces, it is safe to assume that any arguments form a single player name.
+			const player = args.join(' ').substring(0, 12);
 			// Get player stats from a non-json API
-			const api = await fetch(`https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${args.join(' ')}`);
+			const api = await fetch(`https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${player}`);
 			// Get player stats as text
 			const data = await api.text();
 			// Turn the jibberish API response into a nice object
@@ -80,9 +96,9 @@ class rs {
 			// Inject the values into an SVG, return the SVG as string
 			const svgSource = this.injectIntoSVG('../images/rs_stats/style_1.svg', orderedStats);
 			// Turn string-based SVG into a buffer object ready to be sent as a PNG file attachment in discord
-			const imageBuffer = await this.SVGToImg(svgSource);
+			const imageBuffer = await this.SVGToImg(svgSource, '../images/rs_stats/background.png');
 			// Send the message
-			msg.reply('Stats: ', new MessageAttachment(imageBuffer));
+			msg.reply(`Stats for RuneScape player "**${player}**":\n`, new MessageAttachment(imageBuffer));
 		} catch (error) {
 			console.log(error);
 			msg.reply('There was a problem fetching OSRS stats.');
