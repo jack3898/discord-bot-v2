@@ -8,7 +8,7 @@ class ud {
 			const json = await api.json();
 
 			// Get the definition, strip out the square brackets and make sure it meets Discord's sub-2000 letter limit
-			const definition = json.list[0].definition.replace(/[\[\]']+/g, '**').substring(0, 1950);
+			const definition = json.list[0].definition.replace(/[\[\]']+/g, '').substring(0, 1950);
 
 			event.reply(definition);
 		} catch {
