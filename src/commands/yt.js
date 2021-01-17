@@ -3,10 +3,9 @@ const ytdl = require('ytdl-core');
 class yt {
 	static name = 'yt';
 
-	static execute = async (msg, cmd, args) => {
+	static execute = async (msg, args) => {
+		const voiceChannel = msg.member.voice.channel;
 		try {
-			const voiceChannel = msg.member.voice.channel;
-
 			if (!voiceChannel) {
 				msg.reply('You need to be in a voice channel.');
 				return;
@@ -16,11 +15,13 @@ class yt {
 			}
 
 			const connection = await voiceChannel.join();
-			const stream = ytdl(args[0], {filter: 'audioonly'});
+			const stream = ytdl(args[0], {quality: 'highestaudio', filter: 'audioonly'});
 			const dispatcher = connection.play(stream);
 			dispatcher.on('speaking', speaking => (!speaking ? voiceChannel.leave() : null));
 		} catch (error) {
 			msg.reply('Unable to play the video.');
+			voiceChannel.leave();
+			console.log(error);
 		}
 	};
 }

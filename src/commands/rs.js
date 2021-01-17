@@ -45,10 +45,9 @@ class rs {
 	 */
 	static injectIntoSVG = (SVGFileLocation, values) => {
 		const SVGSource = requireAsString(SVGFileLocation);
-		const XMLProcessor = cheerio.load(SVGSource);
-		Object.entries(values).forEach(value => XMLProcessor(`#${value[0]}`).text(value[1].level));
-
-		return XMLProcessor('body').html();
+		const $ = cheerio.load(SVGSource);
+		Object.entries(values).forEach(value => $(`#${value[0]}`).text(value[1].level));
+		return $('body').html();
 	};
 
 	/**
@@ -83,7 +82,7 @@ class rs {
 		});
 	};
 
-	static execute = async (msg, cmd, args) => {
+	static execute = async (msg, args) => {
 		try {
 			// As runescape supports playernames with spaces, it is safe to assume that any arguments form a single player name.
 			const player = args.join(' ').substring(0, 12);
@@ -101,7 +100,7 @@ class rs {
 			msg.reply(`Stats for RuneScape player "**${player}**":\n`, new MessageAttachment(imageBuffer));
 		} catch (error) {
 			console.log(error);
-			msg.reply('There was a problem fetching OSRS stats.');
+			msg.reply('There was a problem fetching OSRS stats. There is a current bug with the Cheerio library for Node that is causing this issue.');
 		}
 	};
 }

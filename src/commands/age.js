@@ -1,5 +1,11 @@
 class age {
-	static execute = async (msg, cmd, args) => {
+	/**
+	 * This method will tell the user how old their or someone else's Discord account is as a reply in the channel they sent the message in.
+	 * @param {Message} msg
+	 * @param {String} cmd
+	 * @param {Array} args
+	 */
+	static execute = async (msg, args, cmd) => {
 		try {
 			let created;
 			let user;

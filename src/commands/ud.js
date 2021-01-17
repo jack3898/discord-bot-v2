@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 
 class ud {
 	static name = 'ud';
-	static execute = async (event, cmd, args) => {
+	static execute = async (event, args, cmd) => {
 		try {
 			const api = await fetch(`http://api.urbandictionary.com/v0/define?term=${args.join(' ')}`);
 			const json = await api.json();

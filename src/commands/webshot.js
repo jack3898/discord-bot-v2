@@ -4,7 +4,7 @@ const puppeteer = require('puppeteer');
 class yt {
 	static name = 'webshot';
 
-	static execute = async (msg, cmd, args) => {
+	static execute = async (msg, args) => {
 		try {
 			// Params
 			const url = args[0].startsWith('https://') ? args[0] : `https://${args[0]}`;
