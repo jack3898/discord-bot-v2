@@ -7,7 +7,6 @@ class Queue {
 		this._guild = guild;
 		this._queue = []; // Set() is actually more of a pain than a help believe it or not.
 		this._iterator = this._queue.values();
-		this._current = undefined;
 		this._voiceConnection = undefined;
 	}
 
@@ -21,7 +20,6 @@ class Queue {
 			this._queue.push(item);
 			return true;
 		}
-
 		return false;
 	}
 
@@ -30,15 +28,15 @@ class Queue {
 	 * @returns {array | boolean}
 	 */
 	get queue() {
-		return this._queue ? this.queue : false;
+		return this._queue ? this._queue : false;
 	}
 
 	/**
-	 * Get current item in the queue.
-	 * @returns {* | boolean}
+	 * Get the queue instance guild ID
+	 * @returns {string}
 	 */
-	get current() {
-		return this._queue[0] ? this._queue[0] : false;
+	get queueGuildId() {
+		return this._guild;
 	}
 
 	/**
@@ -47,17 +45,23 @@ class Queue {
 	 */
 	get next() {
 		const item = this._queue[0];
-		this._current = item;
 		this._queue.shift();
 		if (item) return item;
-
 		return false;
 	}
 
 	get isLast() {
 		if (this._queue.length === 1) return true;
-
 		return false;
+	}
+
+	/**
+	 * Clear the queue of its contents
+	 * @returns {boolean}
+	 */
+	clear() {
+		this._queue = [];
+		return true;
 	}
 
 	async connect(voiceChannel, callback) {
