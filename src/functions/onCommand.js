@@ -13,9 +13,12 @@ function onCommand(msg) {
 
 	// Execute
 	try {
-		bot.commands.get(cmd).execute(msg, args, cmd);
+		bot.commands
+			.get(cmd)
+			.execute(msg, args, cmd)
+			.catch(error => console.log(error));
 	} catch {
-		msg.reply('Command unknown.');
+		msg.reply('Command unknown or there was an error.');
 	}
 }
 

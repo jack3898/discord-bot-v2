@@ -8,51 +8,47 @@ class yt {
 	static activeGuilds = new Map();
 
 	static async execute(msg, args) {
-		try {
-			const voiceChannel = msg.member.voice.channel;
-			// Initialise the queue for the guild
+		const voiceChannel = msg.member.voice.channel;
+		// Initialise the queue for the guild
 
-			// Is the user in a voice channel?
-			if (!voiceChannel) {
-				msg.reply('You need to be in a voice channel.');
-				return;
-			}
-
-			// The Message instance is used to identify the guild and create a queue specific to that guild
-			const currentQueue = this.initQueue(msg);
-
-			// Process any sub-commands of this command
-			if (ytdl.validateURL(args[0])) {
-				currentQueue.add(args[0]);
-			} else if (args[0] === 'add') {
-				if (ytdl.validateURL(args[1])) currentQueue.add(args[1]);
-				else msg.reply('That URL is not valid.');
-				return;
-			} else if (args[0] === 'leave') {
-				voiceChannel.leave();
-				return;
-			} else if (args[0] === 'queue') {
-				msg.reply(
-					currentQueue.queue.length
-						? 'The next 5 items in the queue:\n' +
-								currentQueue.queue
-									.slice(0, 6)
-									.map(item => `*${item}*`)
-									.join('\n')
-						: 'The queue is empty!'
-				);
-				return;
-			} else if (args[0] === 'clear') {
-				currentQueue.clear();
-			} else if (args[0] === 'help') {
-				msg.reply('You can try:\n1. *[url]*, play a YouTube URL\n2. *add [url]*, add a YouTube URL to the queue. You can do this even while the bot is playing something and it will play is as soon as it is finished with the current item.\n3. *leave*, make the bot leave the voice channel\n4. *queue*, get the queue');
-				return;
-			}
-
-			this.play(currentQueue, voiceChannel);
-		} catch (error) {
-			console.log(error);
+		// Is the user in a voice channel?
+		if (!voiceChannel) {
+			msg.reply('You need to be in a voice channel.');
+			return;
 		}
+
+		// The Message instance is used to identify the guild and create a queue specific to that guild
+		const currentQueue = this.initQueue(msg);
+
+		// Process any sub-commands of this command
+		if (ytdl.validateURL(args[0])) {
+			currentQueue.add(args[0]);
+		} else if (args[0] === 'add') {
+			if (ytdl.validateURL(args[1])) currentQueue.add(args[1]);
+			else msg.reply('That URL is not valid.');
+			return;
+		} else if (args[0] === 'leave') {
+			voiceChannel.leave();
+			return;
+		} else if (args[0] === 'queue') {
+			msg.reply(
+				currentQueue.queue.length
+					? 'The next 5 items in the queue:\n' +
+							currentQueue.queue
+								.slice(0, 6)
+								.map(item => `*${item}*`)
+								.join('\n')
+					: 'The queue is empty!'
+			);
+			return;
+		} else if (args[0] === 'clear') {
+			currentQueue.clear();
+		} else if (args[0] === 'help') {
+			msg.reply('You can try:\n1. *[url]*, play a YouTube URL\n2. *add [url]*, add a YouTube URL to the queue. You can do this even while the bot is playing something and it will play is as soon as it is finished with the current item.\n3. *leave*, make the bot leave the voice channel\n4. *queue*, get the queue');
+			return;
+		}
+
+		this.play(currentQueue, voiceChannel);
 	}
 
 	/**
