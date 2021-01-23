@@ -19,8 +19,9 @@ class Queue {
 	 */
 	add(item) {
 		if (!this._queue.find(arrItem => item == arrItem) && this._queue.length < 100) {
-			this._queue.push(new YouTubeVideo(item));
-			return true;
+			const video = new YouTubeVideo(item);
+			this._queue.push(video);
+			return video;
 		}
 		return false;
 	}

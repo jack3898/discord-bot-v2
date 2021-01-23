@@ -91,10 +91,10 @@ class YouTube extends Queue {
 	_add = [
 		'command',
 		(msg, args) => {
+			msg.delete();
 			if (!ytdl.validateURL(args[0])) msg.reply('Invalid URL!');
 			else {
-				msg.reply('Adding to the queue...');
-				this.add(args[0]);
+				this.add(args[0]).title.then(title => msg.reply(`Adding **${title}** to the queue...`));
 			}
 		}
 	];
@@ -121,15 +121,9 @@ class YouTube extends Queue {
 	_getqueue = [
 		'command',
 		msg => {
-			msg.reply(
-				this.queue.length
-					? 'Displaying up to 5 items in the queue:\n' +
-							this.queue
-								.slice(0, 6)
-								.map(item => `*${item}*`)
-								.join('\n')
-					: 'The queue is empty!'
-			);
+			Promise.all(this.queue.slice(0, 26).map(item => item.all)).then(data => {
+				msg.reply(data.length ? 'Displaying up to the next 25 items in the queue:\n' + data.map((item, index) => `**${index + 1}. ${item.title}** - by ${item.author_name}`).join('\n') : 'The queue is empty!');
+			});
 		}
 	];
 
