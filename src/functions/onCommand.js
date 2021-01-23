@@ -19,6 +19,7 @@ function onCommand(msg) {
 			.catch(error => console.log(error));
 	} catch {
 		msg.reply('Command unknown or there was an error.');
+		console.log(error);
 	}
 }
 
