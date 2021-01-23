@@ -98,6 +98,15 @@ class YouTube extends Queue {
 			}
 		}
 	];
+	/**
+	 * Skip the playing item
+	 */
+	_skip = [
+		'command',
+		msg => {
+			this.play(msg.member.voice.channel);
+		}
+	];
 
 	/**
 	 * Make the bot leave the voice channel.
