@@ -1,3 +1,5 @@
+const YouTubeVideo = require('./YouTubeVideo');
+
 class Queue {
 	/**
 	 * Queue system. Mainly for YouTube features buuuut could be useful for other things..
@@ -17,7 +19,7 @@ class Queue {
 	 */
 	add(item) {
 		if (!this._queue.find(arrItem => item == arrItem) && this._queue.length < 100) {
-			this._queue.push(item);
+			this._queue.push(new YouTubeVideo(item));
 			return true;
 		}
 		return false;

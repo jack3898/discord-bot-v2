@@ -55,7 +55,7 @@ class YouTube extends Queue {
 	 */
 	play(channel) {
 		this.connect(channel, connection => {
-			const mediaUrl = this.next;
+			const mediaUrl = this.next.url;
 
 			if (!mediaUrl) {
 				setTimeout(() => channel.leave(), 2000);
