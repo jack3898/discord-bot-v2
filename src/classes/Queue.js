@@ -80,11 +80,6 @@ class Queue {
 		this._queue = [];
 		return true;
 	}
-
-	async connect(voiceChannel, callback) {
-		this._voiceConnection = await voiceChannel.join().catch(() => 'Issue joining channel.');
-		callback(this._voiceConnection);
-	}
 }
 
 module.exports = Queue;
