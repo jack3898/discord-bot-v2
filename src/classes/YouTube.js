@@ -1,5 +1,8 @@
 const Queue = require('./Queue');
 const ytdl = require('ytdl-core');
+const fetch = require('node-fetch');
+const YouTubeVideo = require('./YouTubeVideo');
+const googleToken = process.env.GOOGLE_API_TOKEN;
 
 /**
  * Specifically for YouTube playback in a voice channel, this class will contain playback tools for the bot playing YouTube videos
@@ -20,6 +23,16 @@ class YouTube extends Queue {
 	 */
 	static valudateURL(url) {
 		return ytdl.validateURL(url);
+	}
+
+	/**
+	 * Search YouTube for videos
+	 * @param {string} search Your search term
+	 * @param {integer} results How many results?
+	 */
+	search(search, results = 1) {
+		if (!googleToken) return Promise.reject(false);
+		return fetch(`https://youtube.googleapis.com/youtube/v3/search?maxResults=${results}&q=${encodeURIComponent(search)}&type=video&key=${googleToken}`).then(resp => resp.json());
 	}
 
 	/**
@@ -73,12 +86,23 @@ class YouTube extends Queue {
 	 */
 	_play = [
 		'command',
-		(msg, args) => {
+		async (msg, args) => {
 			const voiceChannel = msg.member.voice.channel;
 
 			if (!voiceChannel) msg.reply('You are not in a voice channel.');
 			else {
 				if (ytdl.validateURL(args[0])) this.add(args[0]);
+				else {
+					const result = await this.search(args.join(' '));
+					const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
+					this.add(finalUrl);
+					YouTubeVideo.fetchFromApi(finalUrl)
+						.then(json => msg.reply(`**Now playing:** ${json.title}!`))
+						.catch(() => {
+							msg.reply('I cannot find that video.');
+							msg.member.voice.channel.leave();
+						});
+				}
 				if (this.queue.length) this.play(voiceChannel);
 				else msg.reply('Was unable to play that YouTube video and there was not a valid YouTube video in the queue!');
 			}
@@ -90,14 +114,21 @@ class YouTube extends Queue {
 	 */
 	_add = [
 		'command',
-		(msg, args) => {
+		async (msg, args) => {
 			msg.delete();
-			if (!ytdl.validateURL(args[0])) msg.reply('Invalid URL!');
-			else {
+			if (!ytdl.validateURL(args[0])) {
+				const result = await this.search(args.join(' '));
+				const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
+				this.add(finalUrl);
+				YouTubeVideo.fetchFromApi(finalUrl)
+					.then(json => msg.reply(`**Adding:** ${json.title} **to the queue!**`))
+					.catch(() => msg.reply('I cannot find that video.'));
+			} else {
 				this.add(args[0]).title.then(title => msg.reply(`Adding **${title}** to the queue...`));
 			}
 		}
 	];
+
 	/**
 	 * Skip the playing item
 	 */

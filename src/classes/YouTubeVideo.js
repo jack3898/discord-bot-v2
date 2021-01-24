@@ -6,11 +6,16 @@ const fetch = require('node-fetch');
 class YouTubeVideo {
 	constructor(url) {
 		this.videourl = url;
-		this._details = this.fetchFromApi(url);
+		this._details = YouTubeVideo.fetchFromApi(url);
 	}
 
-	fetchFromApi(videoUrl) {
-		const url = `https://www.youtube.com/oembed?url=${videoUrl}&index=7&format=json`;
+	/**
+	 * Get video details from a YouTube video URL
+	 * @param {string} videoUrl
+	 * @returns {object} JSON
+	 */
+	static fetchFromApi(videoUrl) {
+		const url = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&index=7&format=json`;
 		return fetch(url).then(data => data.json());
 	}
 

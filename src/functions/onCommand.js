@@ -17,7 +17,7 @@ function onCommand(msg) {
 			.get(cmd)
 			.execute(msg, args, cmd)
 			.catch(error => console.log(error));
-	} catch {
+	} catch (error) {
 		msg.reply('Command unknown or there was an error.');
 		console.log(error);
 	}
