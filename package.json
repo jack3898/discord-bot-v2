@@ -1,5 +1,5 @@
 {
-	"name": "propa-bot",
+	"name": "disbotv2",
 	"version": "1.0.0",
 	"description": "This is a propa discord bot.",
 	"main": "index.js",
@@ -7,8 +7,9 @@
 		"test": "jest",
 		"bot": "nodemon src/index"
 	},
-	"author": "",
-	"license": "ISC",
+	"author": "Jack Wright",
+	"license": "UNLICENSED",
+	"private": "true",
 	"dependencies": {
 		"@discordjs/opus": "^0.3.3",
 		"cheerio": "^1.0.0-rc.5",

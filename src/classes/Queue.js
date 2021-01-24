@@ -1,4 +1,5 @@
 const YouTubeVideo = require('./YouTubeVideo');
+const ytdl = require('ytdl-core');
 
 class Queue {
 	/**
@@ -14,16 +15,29 @@ class Queue {
 
 	/**
 	 * Add an item to the queue whilst also ensuring the queue is not too long
-	 * @param {*} item Which item do you want to add to the queue.
-	 * @returns {boolean} was the job successful
+	 * @param {string} item Which YouTube URL item do you want to add to the queue.
+	 * @returns {Promise | boolean} Video that was added
 	 */
 	add(item) {
-		if (!this._queue.find(arrItem => item == arrItem.url) && this._queue.length < 100) {
-			const video = new YouTubeVideo(item);
-			this._queue.push(video);
-			return video;
-		}
-		return false;
+		return new Promise((resolve, reject) => {
+			if (!this._queue.find(arrItem => item == arrItem.url) && this._queue.length < 100 && ytdl.validateURL(item)) {
+				// getBasicInfo() is used to test whether the video is public or unlisted. If it is private the video will be skipped.
+				resolve(
+					ytdl
+						.getBasicInfo(item)
+						.then(info => {
+							const video = new YouTubeVideo(item, info.videoDetails);
+							this._queue.push(video);
+							return video;
+						})
+						.catch(() => {
+							console.error('A private video was attempted to be added to a queue. Skipping...');
+						})
+				);
+			} else {
+				reject(false);
+			}
+		});
 	}
 
 	/**

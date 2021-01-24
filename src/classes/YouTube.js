@@ -1,7 +1,8 @@
 const Queue = require('./Queue');
+const YouTubeVideo = require('./YouTubeVideo');
 const ytdl = require('ytdl-core');
 const fetch = require('node-fetch');
-const YouTubeVideo = require('./YouTubeVideo');
+const {APIMessage} = require('discord.js');
 const googleToken = process.env.GOOGLE_API_TOKEN;
 
 /**
@@ -57,9 +58,12 @@ class YouTube extends Queue {
 	 * @param {string} command What action would you like to perform?
 	 */
 	do(msg, command) {
-		const [cmd, ...args] = command;
-		if (this[`_${cmd}`][0] === 'command') this[`_${cmd}`][1](msg, args);
-		else msg.reply('Unknown YouTube command.');
+		try {
+			const [cmd, ...args] = command;
+			if (this[`_${cmd}`][0] === 'command') this[`_${cmd}`][1](msg, args);
+		} catch {
+			msg.reply('Unknown YouTube command.');
+		}
 	}
 
 	/**
@@ -91,20 +95,25 @@ class YouTube extends Queue {
 
 			if (!voiceChannel) msg.reply('You are not in a voice channel.');
 			else {
-				if (ytdl.validateURL(args[0])) this.add(args[0]);
+				// If user used a video URL to add to the playlist
+				const addedVideo = await this.add[args[0]];
+				if (addedVideo);
 				else if (args.length) {
+					// If not then did the user add a search term instead?
 					const result = await this.search(args.join(' '));
 					const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
-					this.add(finalUrl);
-					YouTubeVideo.fetchFromApi(finalUrl)
-						.then(json => msg.reply(`**Now playing:** ${json.title}!`))
+					await this.add(finalUrl)
+						.then(addedVideoViaSearch => {
+							msg.reply(`**Now playing:** ${addedVideoViaSearch.all.title}!`);
+						})
 						.catch(() => {
-							msg.reply('I cannot find that video.');
-							msg.member.voice.channel.leave();
+							// Ignore
 						});
 				}
+				// Initiate the play method which will automatically work out the queue and will return false if failed
 				if (this.queue.length) this.play(voiceChannel);
-				else msg.reply('Was unable to play that YouTube video and there was not a valid YouTube video in the queue!');
+				// If it was false then the queue was probably empty meaning the above statements failed to add an item to the queue
+				else msg.reply('I am unable to play that YouTube video or there was not a valid YouTube video in the queue!');
 			}
 		}
 	];
@@ -115,15 +124,35 @@ class YouTube extends Queue {
 	_add = [
 		'command',
 		async (msg, args) => {
+			// Is the user trying to add an item via URL or search term?
 			if (!ytdl.validateURL(args[0])) {
-				const result = await this.search(args.join(' '));
+				// Fetch the videos via YouTube's API
+				const result = await this.search(args.join(' ')).catch(() => {
+					msg.reply("Failed to find the video in YouTube's API.");
+				});
+
+				// Construct a URL
 				const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
-				this.add(finalUrl);
-				YouTubeVideo.fetchFromApi(finalUrl)
-					.then(json => msg.reply(`**Adding:** ${json.title} **to the queue!**`))
-					.catch(() => msg.reply('I cannot find that video.'));
+
+				// Add the video
+				const addedVideo = await this.add(finalUrl).catch(() => {
+					msg.reply('Failed to add video. Does it exist?');
+				});
+
+				// Send the user a message to say the video was added!
+				msg.reply(`**Added:** ${addedVideo.all.title} **to the queue!**`).catch(() => {
+					msg.reply('I cannot find that video.');
+				});
 			} else {
-				this.add(args[0]).title.then(title => msg.reply(`Adding **${title}** to the queue...`));
+				// If the user tried to add the video simply by a URL then just try to add it and see if it was successful!
+				this.add(args[0])
+					.then(addedVideo => {
+						if (addedVideo) msg.reply(`**Added:** ${addedVideo.all.title} **to the queue!**`);
+						else msg.reply('Could not add video to queue.');
+					})
+					.catch(() => {
+						msg.reply('Failed to add that video to the queue.');
+					});
 			}
 		}
 	];
@@ -161,9 +190,49 @@ class YouTube extends Queue {
 	_getqueue = [
 		'command',
 		msg => {
-			Promise.all(this.queue.slice(0, 26).map(item => item.all)).then(data => {
-				msg.reply(data.length ? 'Displaying up to the next 25 items in the queue:\n' + data.map((item, index) => `**${index + 1}. ${item.title}** - by ${item.author_name}`).join('\n') : 'The queue is empty!');
-			});
+			// Each item is an instance of YouTubeVideo
+			const videos = this.queue.slice(0, 20);
+
+			// Turn the list of queue items into a numbered list to be displayed as a message
+			// Returns a string ready to be added to a Discord Message
+			const queueItemsResp = videos => videos.map((video, index) => `**${index + 1}:** ${video.all.title}`).join('\n');
+
+			// When all videos have resolved their data then we can process that data into a message as a reply to the user
+			msg.reply(videos.length ? `Displaying up to the next 20 items in the queue:\n${queueItemsResp(videos)}` : 'The queue is empty!');
+		}
+	];
+
+	_queuelength = [
+		'command',
+		msg => {
+			msg.reply(`**Your queue length is:** ${this.queue.length}`);
+		}
+	];
+
+	/**
+	 * Convert a YouTube playlist into a queue!
+	 * Warning: Will overwrite the existing playlist
+	 */
+	_playlist = [
+		'command',
+		(msg, args) => {
+			const playlistKey = args[0];
+
+			fetch(`https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${playlistKey}&key=${googleToken}`)
+				.then(resp => resp.json())
+				.then(json => {
+					const playlistItems = json.items.map(videoResource => videoResource.snippet.resourceId.videoId);
+
+					playlistItems.forEach(playlistItem => {
+						const videoUrl = `https://www.youtube.com/watch?v=${playlistItem}`;
+						this.add(videoUrl);
+					});
+
+					msg.reply('Added that playlist to the queue!');
+				})
+				.catch(() => {
+					msg.reply('Unable to fetch the playlist!');
+				});
 		}
 	];
 

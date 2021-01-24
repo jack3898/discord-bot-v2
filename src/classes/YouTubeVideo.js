@@ -1,22 +1,13 @@
 const fetch = require('node-fetch');
+const ytdl = require('ytdl-core');
 
 /**
  * A YouTube video instance. Contains basic information about a YouTube video with a provided URL.
  */
 class YouTubeVideo {
-	constructor(url) {
+	constructor(url, details) {
 		this.videourl = url;
-		this._details = YouTubeVideo.fetchFromApi(url);
-	}
-
-	/**
-	 * Get video details from a YouTube video URL
-	 * @param {string} videoUrl
-	 * @returns {object} JSON
-	 */
-	static fetchFromApi(videoUrl) {
-		const url = `https://www.youtube.com/oembed?url=${encodeURIComponent(videoUrl)}&index=7&format=json`;
-		return fetch(url).then(data => data.json());
+		this._details = details;
 	}
 
 	get url() {
@@ -25,42 +16,10 @@ class YouTubeVideo {
 
 	/**
 	 * Get all video details
-	 * @returns {Promise}
+	 * @returns {object} all video details
 	 */
 	get all() {
-		return this._details.then(json => json);
-	}
-
-	/**
-	 * Get video title
-	 * @returns {Promise}
-	 */
-	get title() {
-		return this._details.then(json => json.title);
-	}
-
-	/**
-	 * Get video channel name / author
-	 * @returns {Promise}
-	 */
-	get author() {
-		return this._details.then(json => json.author_name);
-	}
-
-	/**
-	 * Get the URL to the channel
-	 * @returns {Promise}
-	 */
-	get authorUrl() {
-		return this._details.then(json => json.author_url);
-	}
-
-	/**
-	 * Get the thumbnail URL
-	 * @returns {Promise}
-	 */
-	get thumbnailUrl() {
-		return this._details.then(json => json.thumbnail_url);
+		return this._details;
 	}
 }
 
