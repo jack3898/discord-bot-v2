@@ -18,7 +18,7 @@ class Queue {
 	 * @returns {boolean} was the job successful
 	 */
 	add(item) {
-		if (!this._queue.find(arrItem => item == arrItem) && this._queue.length < 100) {
+		if (!this._queue.find(arrItem => item == arrItem.url) && this._queue.length < 100) {
 			const video = new YouTubeVideo(item);
 			this._queue.push(video);
 			return video;
@@ -68,7 +68,7 @@ class Queue {
 	}
 
 	async connect(voiceChannel, callback) {
-		this._voiceConnection = await voiceChannel.join();
+		this._voiceConnection = await voiceChannel.join().catch(() => 'Issue joining channel.');
 		callback(this._voiceConnection);
 	}
 }

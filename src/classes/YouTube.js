@@ -92,7 +92,7 @@ class YouTube extends Queue {
 			if (!voiceChannel) msg.reply('You are not in a voice channel.');
 			else {
 				if (ytdl.validateURL(args[0])) this.add(args[0]);
-				else {
+				else if (args.length) {
 					const result = await this.search(args.join(' '));
 					const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
 					this.add(finalUrl);
@@ -115,7 +115,6 @@ class YouTube extends Queue {
 	_add = [
 		'command',
 		async (msg, args) => {
-			msg.delete();
 			if (!ytdl.validateURL(args[0])) {
 				const result = await this.search(args.join(' '));
 				const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
@@ -135,7 +134,8 @@ class YouTube extends Queue {
 	_skip = [
 		'command',
 		msg => {
-			this.play(msg.member.voice.channel);
+			if (this.queue.length) this.play(msg.member.voice.channel);
+			else msg.reply('Nothing to skip or you are at the end of the queue!');
 		}
 	];
 
