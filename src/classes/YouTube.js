@@ -1,5 +1,5 @@
 const Queue = require('./Queue');
-const ytdl = require('ytdl-core');
+const ytdl = require('ytdl-core-discord');
 const fetch = require('node-fetch');
 const googleToken = process.env.GOOGLE_API_TOKEN;
 
@@ -69,7 +69,7 @@ class YouTube extends Queue {
 	 * @param {VoiceChannel} channel Which voice channel to join to play the music in
 	 */
 	play(channel) {
-		this.connect(channel, connection => {
+		this.connect(channel, async connection => {
 			const mediaUrl = this.next.url;
 
 			if (!mediaUrl) {
@@ -77,8 +77,8 @@ class YouTube extends Queue {
 				return;
 			}
 
-			const stream = ytdl(mediaUrl, {quality: 'highestaudio', filter: 'audioonly'});
-			const dispatcher = connection.play(stream);
+			const stream = await ytdl(mediaUrl);
+			const dispatcher = connection.play(stream, {type: 'opus'});
 			dispatcher.on('finish', () => this.play(channel));
 		});
 	}
