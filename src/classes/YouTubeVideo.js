@@ -1,6 +1,3 @@
-const fetch = require('node-fetch');
-const ytdl = require('ytdl-core');
-
 /**
  * A YouTube video instance. Contains basic information about a YouTube video with a provided URL.
  */
