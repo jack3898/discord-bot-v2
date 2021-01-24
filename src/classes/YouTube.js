@@ -1,8 +1,6 @@
 const Queue = require('./Queue');
-const YouTubeVideo = require('./YouTubeVideo');
 const ytdl = require('ytdl-core');
 const fetch = require('node-fetch');
-const {APIMessage} = require('discord.js');
 const googleToken = process.env.GOOGLE_API_TOKEN;
 
 /**
