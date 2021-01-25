@@ -2,13 +2,13 @@ const getFiles = require('./getFiles');
 
 // When bot is ready
 function onReady() {
-	const commandModules = getFiles('./../commands');
+	const commandModules = getFiles(rootPath + '/commands');
 
 	try {
 		if (!!commandModules.length) {
 			bot.commands = new Discord.Collection(
 				commandModules.map(moduleName => {
-					const module = require(__dirname + './../commands/' + moduleName);
+					const module = require(rootPath + '/commands/' + moduleName);
 					if (module.execute && module.name) return [module.name, module];
 				})
 			);

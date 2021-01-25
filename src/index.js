@@ -1,5 +1,6 @@
 // Constructors
 global.Discord = require('discord.js');
+global.rootPath = __dirname;
 
 // Instances
 global.bot = new Discord.Client();
