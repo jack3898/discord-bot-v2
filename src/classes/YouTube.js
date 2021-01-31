@@ -115,7 +115,7 @@ class YouTube extends Queue {
 					// Construct a video URL to stream
 					const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
 					// Add the video URL to the queue
-					const addedVideoViaSearch = await this.add(finalUrl);
+					const addedVideoViaSearch = await this.add(msg.author, finalUrl);
 					// Inform the user the operation was successful!
 					msg.reply(`**Now playing:** ${addedVideoViaSearch.all.title}!`);
 				}
@@ -143,12 +143,12 @@ class YouTube extends Queue {
 					// Construct a URL to stream from
 					const finalUrl = `https://www.youtube.com/watch?v=${result.items[0]?.id.videoId}`;
 					// Add the video to a queue
-					const addedVideo = await this.add(finalUrl);
+					const addedVideo = await this.add(msg.author, finalUrl);
 					// Inform the user the item was added to the queue!
 					msg.reply(`**Added:** ${addedVideo?.all.title} **to the queue!**`);
 				} else {
 					// If the user tried to add the video simply by a URL then just try to add it and see if it was successful!
-					const addedVideo = await this.add(args[0]);
+					const addedVideo = await this.add(msg.author, args[0]);
 					// Inform the user if it was successful
 					if (addedVideo) msg.reply(`**Added:** ${addedVideo.all.title} **to the queue!**`);
 					else msg.reply('Could not add video to queue. Is it private?');
@@ -198,7 +198,7 @@ class YouTube extends Queue {
 			const videos = this?.queue.slice(0, 20);
 			// Turn the list of queue items into a numbered list to be displayed as a message
 			// Returns a string ready to be added to a Discord Message
-			const queueItemsResp = videos => videos.map((video, index) => `**${index + 1}:** ${video?.all.title}`).join('\n');
+			const queueItemsResp = videos => videos.map((video, index) => `**${index + 1}:** ${video?.all.title}, **added by:** <@${video?.owner.id}>`).join('\n');
 			// When all videos have resolved their data then we can process that data into a message as a reply to the user
 			msg.reply(videos.length ? `Displaying up to the next 20 items in the queue:\n${queueItemsResp(videos)}` : 'The queue is empty!');
 		}
@@ -225,7 +225,7 @@ class YouTube extends Queue {
 				// Now convert the response into a simple list of video id's
 				const playlistItems = json.items.map(videoResource => videoResource.snippet.resourceId.videoId);
 				// Now take each video ID and try to add it to the queue
-				playlistItems.forEach(playlistItem => this.add(`https://www.youtube.com/watch?v=${playlistItem}`));
+				playlistItems.forEach(playlistItem => this.add(msg.author, `https://www.youtube.com/watch?v=${playlistItem}`));
 				// If all is good inform the user all videos were added to the queue!
 				msg.reply('Added that playlist to the queue!');
 			} catch {
