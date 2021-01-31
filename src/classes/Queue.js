@@ -58,6 +58,8 @@ class Queue {
 
 	/**
 	 * Get the next item in the queue. If we have come to an end, delete the queue from memory.
+	 * TODO: Allow a parameter that can skip multiple items at once then utlise the removeFirst
+	 * TODO: Allow loop, so that the same item is returned
 	 * @param {boolean} shift should the queue remove the current item before proceeding to the next?
 	 */
 	get next() {
@@ -66,6 +68,79 @@ class Queue {
 		if (item) return item;
 		return false;
 	}
+
+	/**
+	 * Get an item in the queue via an index
+	 */
+	queueItem(index) {
+		const intIndex = parseInt(index);
+		// NaN's type is still number, so we must also check for truthy/falsy
+		if (typeof intIndex === 'number' && intIndex) return this?._queue[intIndex];
+		else return false;
+	}
+
+	/**
+	 * Remove an item from a queue using an index
+	 */
+	remove(index = 0) {
+		try {
+			if (index > -1) {
+				this._queue.splice(index, 1);
+				return true;
+			} else return false;
+		} catch (error) {
+			console.log(error);
+			return false;
+		}
+	}
+
+	/**
+	 * Remove the last item of the queue
+	 * TODO: Add this
+	 */
+	removeLast() {}
+
+	/**
+	 * Remove the first item of the queue
+	 * TODO: Add this
+	 */
+	removeFirst() {}
+
+	/**
+	 * Remove all items in the queue by a certain discord user. An additional property will need to be added to the YouTubeVideo class.
+	 * TODO: Add this
+	 */
+	removeByAuthor() {}
+
+	/**
+	 * Remove all items in the queue that were added before, after or in-between a certain time
+	 * TODO: Add this
+	 */
+	removeByTime() {}
+
+	/**
+	 * Shuffle the items in the queue
+	 * TODO: Add this
+	 */
+	shuffle() {}
+
+	/**
+	 * Sort the queue by date, alphabetical, by artist etc.
+	 * TODO: Add this
+	 */
+	organise() {}
+
+	/**
+	 * Prevent the addition of items to the queue
+	 * TODO: Add this
+	 */
+	freeze() {}
+
+	/**
+	 * Unfreeze a frozen queue
+	 * TODO: Add this
+	 */
+	unfreeze() {}
 
 	get isLast() {
 		if (this._queue.length === 1) return true;

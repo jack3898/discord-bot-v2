@@ -59,7 +59,8 @@ class YouTube extends Queue {
 		try {
 			const [cmd, ...args] = command;
 			if (this[`_${cmd}`][0] === 'command') this[`_${cmd}`][1](msg, args);
-		} catch {
+		} catch (error) {
+			console.log(error);
 			msg.reply('Unknown YouTube command.');
 		}
 	}
@@ -188,6 +189,7 @@ class YouTube extends Queue {
 
 	/**
 	 * Reply to the user with the current queue
+	 * TODO: Paginate this
 	 */
 	_getqueue = [
 		'command',
@@ -218,7 +220,7 @@ class YouTube extends Queue {
 				// At the moment the user has to find the playlist on YouTube and get the key from the URL
 				const playlistKey = args[0];
 				// Contact the YouTube API and fetch the videos in that playlist
-				const response = await fetch(`https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=20&playlistId=${playlistKey}&key=${googleToken}`);
+				const response = await fetch(`https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=${playlistKey}&key=${googleToken}`);
 				const json = await response.json();
 				// Now convert the response into a simple list of video id's
 				const playlistItems = json.items.map(videoResource => videoResource.snippet.resourceId.videoId);
@@ -240,6 +242,22 @@ class YouTube extends Queue {
 		msg => {
 			msg.reply('Your queue is now empty.');
 			this.clear();
+		}
+	];
+
+	/**
+	 * Remove an item from the queue using an index
+	 */
+	_remove = [
+		'command',
+		(msg, args) => {
+			// Get the proper index of the queue item. As the users reference items from index 1, we need to start at index 0
+			const index = parseInt(args[0]) - 1;
+			// Get the title of the video being removed
+			const title = this.queueItem(index).all?.title;
+			// Remove and notify
+			if (this.remove(index) && index <= this.queue?.length) msg.reply(`**Removed:** ${title}`);
+			else msg.reply('Could not remove the item.');
 		}
 	];
 
