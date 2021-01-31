@@ -262,6 +262,17 @@ class YouTube extends Queue {
 	];
 
 	/**
+	 * Shuffle the queue
+	 */
+	_shuffle = [
+		'command',
+		msg => {
+			this.shuffle();
+			msg.reply('Shuffled the queue!');
+		}
+	];
+
+	/**
 	 * Help the user
 	 * TODO: Add code here
 	 */

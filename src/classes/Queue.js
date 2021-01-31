@@ -1,5 +1,6 @@
 const YouTubeVideo = require('./YouTubeVideo');
 const ytdl = require('ytdl-core-discord');
+const shuffleArray = require('./../functions/shuffleArray');
 
 class Queue {
 	/**
@@ -124,7 +125,9 @@ class Queue {
 	 * Shuffle the items in the queue
 	 * TODO: Add this
 	 */
-	shuffle() {}
+	shuffle() {
+		shuffleArray(this._queue);
+	}
 
 	/**
 	 * Sort the queue by date, alphabetical, by artist etc.
